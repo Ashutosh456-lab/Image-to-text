@@ -8,7 +8,7 @@
 <body>
     <h1>Wildangles Process optimizer</h1>
 
-    <!-- Input for capturing or uploading an image -->
+    <!-- Input for capturing an image from the camera -->
     <input type="file" accept="image/*" capture="environment" id="imageInput">
     <br><br>
 
@@ -39,6 +39,12 @@
     <script>
         function processImage() {
             const imageInput = document.getElementById('imageInput').files[0];
+
+            if (!imageInput) {
+                alert("Please upload or capture an image.");
+                return;
+            }
+
             const reader = new FileReader();
 
             reader.onload = function(event) {
@@ -51,14 +57,13 @@
                     console.log(text);
                     document.getElementById('ocrResult').value = text;
                     populateForm(text);
+                }).catch(err => {
+                    console.error("OCR error:", err);
+                    alert("There was an error processing the image.");
                 });
             };
 
-            if (imageInput) {
-                reader.readAsDataURL(imageInput);
-            } else {
-                alert("Please upload an image.");
-            }
+            reader.readAsDataURL(imageInput);
         }
 
         function populateForm(text) {
