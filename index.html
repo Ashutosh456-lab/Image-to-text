@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client-Side OCR with Tesseract.js</title>
+</head>
+<body>
+    <h1>Aadhar Card OCR</h1>
+
+    <!-- Input for capturing or uploading an image -->
+    <input type="file" accept="image/*" capture="environment" id="imageInput">
+    <br><br>
+
+    <!-- Button to start OCR process -->
+    <button onclick="processImage()">Extract Text</button>
+    <br><br>
+
+    <!-- Display OCR results -->
+    <div>
+        <h3>Extracted Text:</h3>
+        <textarea id="ocrResult" rows="10" cols="50" readonly></textarea>
+    </div>
+
+    <!-- Form Fields to auto-fill -->
+    <h3>Auto-Filled Form:</h3>
+    <label for="name">Name: </label>
+    <input type="text" id="name"><br><br>
+    <label for="dob">Date of Birth: </label>
+    <input type="text" id="dob"><br><br>
+    <label for="aadhar">Aadhar Number: </label>
+    <input type="text" id="aadhar"><br><br>
+
+    <button onclick="submitForm()">Submit</button>
+
+    <!-- Tesseract.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.0.2/dist/tesseract.min.js"></script>
+
+    <script>
+        function processImage() {
+            const imageInput = document.getElementById('imageInput').files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(event) {
+                const imgData = event.target.result;
+
+                // Perform OCR using Tesseract.js
+                Tesseract.recognize(imgData, 'eng', {
+                    logger: (m) => console.log(m),
+                }).then(({ data: { text } }) => {
+                    console.log(text);
+                    document.getElementById('ocrResult').value = text;
+                    populateForm(text);
+                });
+            };
+
+            if (imageInput) {
+                reader.readAsDataURL(imageInput);
+            } else {
+                alert("Please upload an image.");
+            }
+        }
+
+        function populateForm(text) {
+            // Simple Regex to extract Name, DOB, and Aadhar (Assumed text format for example)
+            const nameMatch = text.match(/Name: ([A-Za-z ]+)/);
+            const dobMatch = text.match(/DOB: (\d{2}-\d{2}-\d{4})/);
+            const aadharMatch = text.match(/\d{4} \d{4} \d{4}/);
+
+            if (nameMatch) document.getElementById('name').value = nameMatch[1];
+            if (dobMatch) document.getElementById('dob').value = dobMatch[1];
+            if (aadharMatch) document.getElementById('aadhar').value = aadharMatch[0];
+        }
+
+        function submitForm() {
+            const name = document.getElementById('name').value;
+            const dob = document.getElementById('dob').value;
+            const aadhar = document.getElementById('aadhar').value;
+
+            alert(Form Submitted!\nName: ${name}\nDOB: ${dob}\nAadhar: ${aadhar});
+        }
+    </script>
+</body>
+</html>
